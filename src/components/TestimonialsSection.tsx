@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, ChevronDown } from "lucide-react";
 
 const TestimonialsSection = () => {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
@@ -42,6 +42,11 @@ const TestimonialsSection = () => {
     }
   };
 
+  const handleReturnToNormal = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPlayingVideo(null);
+  };
+
   return (
     <section className="py-20 bg-gradient-to-br from-white to-secondary/30">
       <div className="container mx-auto px-4">
@@ -70,100 +75,120 @@ const TestimonialsSection = () => {
                   <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                     <Card className={`h-full border-0 shadow-lg transition-all duration-700 transform bg-white/80 backdrop-blur-sm overflow-hidden ${
                       playingVideo === index 
-                        ? 'scale-105 shadow-2xl ring-4 ring-accent/30 hover:shadow-2xl hover:-translate-y-1' 
+                        ? 'scale-105 shadow-2xl ring-4 ring-accent/30' 
                         : 'hover:shadow-xl hover:-translate-y-2'
                     }`}>
-                      <CardContent className="p-0">
-                        {/* Video Section */}
-                        <div 
-                          className={`relative aspect-video bg-gradient-to-br from-primary/10 to-accent/10 group cursor-pointer overflow-hidden transition-all duration-500 ${
-                            playingVideo === index ? 'ring-2 ring-accent/50' : ''
-                          }`}
-                          onClick={() => handleVideoToggle(index)}
-                        >
-                          <img 
-                            src={testimonial.videoThumbnail}
-                            alt={`Depoimento de ${testimonial.name}`}
-                            className={`w-full h-full object-cover transition-all duration-500 ${
-                              playingVideo === index 
-                                ? 'scale-110 brightness-110' 
-                                : 'group-hover:scale-105'
-                            }`}
-                          />
-                          
-                          {/* Play/Pause Button Overlay */}
-                          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
-                            playingVideo === index 
-                              ? 'bg-black/40' 
-                              : 'bg-black/20 group-hover:bg-black/30'
-                          }`}>
-                            <div className={`rounded-full p-4 transition-all duration-500 transform shadow-lg ${
-                              playingVideo === index 
-                                ? 'bg-accent text-white scale-125 pulse' 
-                                : 'bg-accent/90 hover:bg-accent text-white group-hover:scale-110'
-                            }`}>
-                              {playingVideo === index ? (
-                                <Pause className="w-8 h-8 fill-white" />
-                              ) : (
-                                <Play className="w-8 h-8 fill-white ml-1" />
-                              )}
+                      <CardContent className="p-0 relative">
+                        {playingVideo === index ? (
+                          // Expanded video view
+                          <div className="relative w-full h-full min-h-[400px] flex flex-col">
+                            {/* Full video area */}
+                            <div className="relative flex-1 bg-gradient-to-br from-primary/10 to-accent/10 group cursor-pointer overflow-hidden">
+                              <img 
+                                src={testimonial.videoThumbnail}
+                                alt={`Depoimento de ${testimonial.name}`}
+                                className="w-full h-full object-cover transition-all duration-500 scale-110 brightness-110"
+                              />
+                              
+                              {/* Playing overlay */}
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                <div className="rounded-full p-6 bg-accent text-white scale-125 pulse shadow-2xl">
+                                  <Pause className="w-10 h-10 fill-white" />
+                                </div>
+                              </div>
+
+                              {/* Duration and status */}
+                              <div className="absolute bottom-4 right-4 bg-accent/90 text-white text-sm px-3 py-1 rounded">
+                                2:34
+                              </div>
+                              <div className="absolute top-4 left-4 bg-accent text-white text-xs px-3 py-1 rounded-full animate-pulse">
+                                ▶ Reproduzindo
+                              </div>
+                            </div>
+
+                            {/* Compact author info at bottom */}
+                            <div className="bg-white/95 backdrop-blur-sm p-4 border-t border-accent/20">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <img 
+                                    src={testimonial.avatar} 
+                                    alt={testimonial.name}
+                                    className="w-10 h-10 rounded-full object-cover border-2 border-accent/30"
+                                  />
+                                  <div>
+                                    <div className="font-semibold text-accent text-sm">{testimonial.name}</div>
+                                    <div className="text-xs text-secondary-dark">{testimonial.role}</div>
+                                  </div>
+                                </div>
+                                
+                                {/* Return arrow */}
+                                <button
+                                  onClick={(e) => handleReturnToNormal(index, e)}
+                                  className="group/btn p-2 rounded-full bg-gradient-to-r from-accent/10 to-accent/20 hover:from-accent/20 hover:to-accent/30 transition-all duration-300 hover:scale-110"
+                                >
+                                  <ChevronDown className="w-5 h-5 text-accent transition-transform duration-300 group-hover/btn:scale-110" />
+                                </button>
+                              </div>
                             </div>
                           </div>
+                        ) : (
+                          // Normal card view
+                          <>
+                            {/* Video Section */}
+                            <div 
+                              className="relative aspect-video bg-gradient-to-br from-primary/10 to-accent/10 group cursor-pointer overflow-hidden transition-all duration-500"
+                              onClick={() => handleVideoToggle(index)}
+                            >
+                              <img 
+                                src={testimonial.videoThumbnail}
+                                alt={`Depoimento de ${testimonial.name}`}
+                                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                              />
+                              
+                              {/* Play Button Overlay */}
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-all duration-500">
+                                <div className="rounded-full p-4 bg-accent/90 hover:bg-accent text-white group-hover:scale-110 transition-all duration-500 transform shadow-lg">
+                                  <Play className="w-8 h-8 fill-white ml-1" />
+                                </div>
+                              </div>
 
-                          {/* Duration Badge */}
-                          <div className={`absolute bottom-3 right-3 text-white text-sm px-2 py-1 rounded transition-all duration-300 ${
-                            playingVideo === index 
-                              ? 'bg-accent/90' 
-                              : 'bg-black/70'
-                          }`}>
-                            2:34
-                          </div>
-
-                          {/* Playing indicator */}
-                          {playingVideo === index && (
-                            <div className="absolute top-3 left-3 bg-accent text-white text-xs px-2 py-1 rounded-full animate-pulse">
-                              ▶ Reproduzindo
+                              {/* Duration Badge */}
+                              <div className="absolute bottom-3 right-3 bg-black/70 text-white text-sm px-2 py-1 rounded transition-all duration-300">
+                                2:34
+                              </div>
                             </div>
-                          )}
-                        </div>
 
-                        {/* Content Section */}
-                        <div className={`p-6 transition-all duration-500 ${
-                          playingVideo === index ? 'bg-gradient-to-b from-accent/5 to-transparent' : ''
-                        }`}>
-                          {/* Stars */}
-                          <div className="flex mb-4 justify-center">
-                            {[...Array(testimonial.rating)].map((_, i) => (
-                              <svg key={i} className={`w-5 h-5 fill-current mx-0.5 transition-colors duration-300 ${
-                                playingVideo === index ? 'text-accent' : 'text-accent'
-                              }`} viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                              </svg>
-                            ))}
-                          </div>
+                            {/* Content Section */}
+                            <div className="p-6">
+                              {/* Stars */}
+                              <div className="flex mb-4 justify-center">
+                                {[...Array(testimonial.rating)].map((_, i) => (
+                                  <svg key={i} className="w-5 h-5 fill-current text-accent mx-0.5" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                ))}
+                              </div>
 
-                          {/* Quote */}
-                          <p className="text-secondary-dark leading-relaxed mb-6 italic text-center text-sm md:text-base line-clamp-4">
-                            "{testimonial.content}"
-                          </p>
+                              {/* Quote */}
+                              <p className="text-secondary-dark leading-relaxed mb-6 italic text-center text-sm md:text-base line-clamp-4">
+                                "{testimonial.content}"
+                              </p>
 
-                          {/* Author */}
-                          <div className="flex items-center justify-center space-x-3 pt-4 border-t border-secondary/30">
-                            <img 
-                              src={testimonial.avatar} 
-                              alt={testimonial.name}
-                              className={`w-12 h-12 rounded-full object-cover border-2 transition-all duration-300 ${
-                                playingVideo === index ? 'border-accent/50 ring-2 ring-accent/20' : 'border-accent/20'
-                              }`}
-                            />
-                            <div className="text-center">
-                              <div className={`font-semibold text-sm transition-colors duration-300 ${
-                                playingVideo === index ? 'text-accent' : 'text-primary'
-                              }`}>{testimonial.name}</div>
-                              <div className="text-xs text-secondary-dark">{testimonial.role}</div>
+                              {/* Author */}
+                              <div className="flex items-center justify-center space-x-3 pt-4 border-t border-secondary/30">
+                                <img 
+                                  src={testimonial.avatar} 
+                                  alt={testimonial.name}
+                                  className="w-12 h-12 rounded-full object-cover border-2 border-accent/20"
+                                />
+                                <div className="text-center">
+                                  <div className="font-semibold text-sm text-primary">{testimonial.name}</div>
+                                  <div className="text-xs text-secondary-dark">{testimonial.role}</div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
+                          </>
+                        )}
                       </CardContent>
                     </Card>
                   </CarouselItem>
